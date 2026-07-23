@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Oops · Adventure Island{% endblock %}
+{% block chrome %}{% endblock %}
+{% block content %}
+<div class="card error-card">
+  <div class="code">{{ code }}</div>
+  <p class="big" aria-hidden="true">🦊❓</p>
+  <p>{{ message }}</p>
+  <a class="btn-secondary" href="{{ url_for('main.today') }}">回首页 Home</a>
+</div>
+{% endblock %}

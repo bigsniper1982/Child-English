@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}小游戏 · Adventure Island{% endblock %}
+{% block content %}
+<div class="section-title">🎮 小游戏 Games</div>
+<div class="game-grid">
+  <a class="game-tile" href="{{ url_for('main.games_listen') }}">
+    <span class="ico">👂</span>
+    <h3>听音选图 Listen &amp; Choose</h3>
+    <p class="muted">听一个词，点出正确的图片。</p>
+  </a>
+  <a class="game-tile" href="{{ url_for('main.games_sentence') }}">
+    <span class="ico">🧩</span>
+    <h3>词块拼句 Build a Sentence</h3>
+    <p class="muted">把打乱的词块排成一句话。</p>
+  </a>
+</div>
+{% endblock %}

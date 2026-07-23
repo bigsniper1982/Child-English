@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}School Helper · Adventure Island{% endblock %}
+{% block content %}
+<div class="section-title">🎤 {{ scenario['title'] }}</div>
+<p class="muted">{{ scenario['intro'] }}</p>
+
+<div id="chat"
+     data-attempt-url="{{ url_for('main.speaking_attempt') }}"
+     data-csrf="{{ csrf_token }}"
+     data-back-url="{{ url_for('main.today') }}"
+     data-turns='{{ turns | tojson }}'>
+</div>
+
+<p class="disclaimer">{{ scenario['disclaimer'] }}</p>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/tts.js') }}"></script>
+<script src="{{ url_for('static', filename='js/speaking.js') }}"></script>
+{% endblock %}

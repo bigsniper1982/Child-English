@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}今日任务 · English Adventure Island{% endblock %}
+{% block content %}
+<p class="hello">你好，<strong>{{ child['name'] }}</strong>！ 🌞</p>
+
+<div class="stat-row">
+  <div class="stat"><div class="num">⭐ {{ child['stars'] }}</div><div class="lbl">星星 Stars</div></div>
+  <div class="stat"><div class="num">{{ stats['known_words'] }}/{{ stats['total_words'] }}</div><div class="lbl">已掌握 Mastered</div></div>
+  <div class="stat"><div class="num">{{ stats['learning_days'] }}</div><div class="lbl">学习天数 Days</div></div>
+</div>
+
+<div class="progress" aria-label="Theme progress">
+  <span style="width: {{ (stats['known_words'] / stats['total_words'] * 100) | round(0, 'floor') }}%"></span>
+</div>
+<p class="muted">主题 School Life · 校园生活</p>
+
+<div class="section-title">📋 今日任务 Today's Quest</div>
+
+<a class="card game-tile" href="{{ url_for('main.review') }}">
+  <span class="ico">🔁</span>
+  <h3>1. 复习旧词 Review</h3>
+  <p class="muted">{{ due_count }} 个词待复习 due today</p>
+</a>
+
+<a class="card game-tile" href="{{ url_for('main.learn') }}">
+  <span class="ico">📚</span>
+  <h3>2. 学习新词 Learn</h3>
+  <p class="muted">
+    {% if new_words %}{{ new_words|length }} 个新词 new words{% else %}今天都学完啦 all done!{% endif %}
+  </p>
+</a>
+
+<a class="card game-tile" href="{{ url_for('main.games') }}">
+  <span class="ico">🎮</span>
+  <h3>3. 玩游戏 Play</h3>
+  <p class="muted">听音选图 · 词块拼句</p>
+</a>
+
+<a class="card game-tile" href="{{ url_for('main.speaking') }}">
+  <span class="ico">🎤</span>
+  <h3>4. 开口说 Speak</h3>
+  <p class="muted">和 School Helper 聊一聊</p>
+</a>
+
+<a class="card game-tile" href="{{ url_for('main.pet') }}">
+  <span class="ico">🦊</span>
+  <h3>5. 看看小狐狸 Your Fox</h3>
+  <p class="muted">收集星星，让小狐狸长大</p>
+</a>
+{% endblock %}

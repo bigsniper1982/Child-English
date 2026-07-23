@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}词块拼句 · Adventure Island{% endblock %}
+{% block content %}
+<div class="section-title">🧩 词块拼句 Build a Sentence</div>
+<div id="game"
+     data-submit-url="{{ url_for('main.games_sentence_submit') }}"
+     data-back-url="{{ url_for('main.games') }}"
+     data-csrf="{{ csrf_token }}"
+     data-round='{{ rnd | tojson }}'>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/tts.js') }}"></script>
+<script src="{{ url_for('static', filename='js/game_sentence.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}小狐狸 · Adventure Island{% endblock %}
+{% set foxes = ['🥚','🐣','🦊','🦊✨','🦊👑'] %}
+{% set names = ['狐狸蛋 Fox Egg','小狐宝 Fox Baby','小狐狸 Little Fox','聪明狐狸 Clever Fox','狐狸国王 Fox King'] %}
+{% block content %}
+<div class="section-title">🦊 我的小狐狸 My Fox</div>
+<div class="card fox-stage">
+  <div class="fox-emoji pop">{{ foxes[child['fox_stage']] }}</div>
+  <div class="fox-name">{{ names[child['fox_stage']] }}</div>
+  <div class="starbar">⭐ {{ child['stars'] }} 颗星星</div>
+  {% set nextlvl = (child['fox_stage'] + 1) * 20 %}
+  {% if child['fox_stage'] < 4 %}
+    {% set pct = (child['stars'] % 20) / 20 * 100 %}
+    <div class="progress"><span style="width: {{ pct | round(0,'floor') }}%"></span></div>
+    <p class="muted">再得 {{ nextlvl - child['stars'] }} 颗星，小狐狸就能长大！</p>
+  {% else %}
+    <p class="muted">你的小狐狸已经长成狐狸国王啦！👑</p>
+  {% endif %}
+</div>
+
+<div class="stat-row">
+  <div class="stat"><div class="num">{{ stats['known_words'] }}</div><div class="lbl">掌握 Mastered</div></div>
+  <div class="stat"><div class="num">{{ stats['due_words'] }}</div><div class="lbl">待复习 To review</div></div>
+  <div class="stat"><div class="num">{{ stats['speaking_attempts'] }}</div><div class="lbl">开口 Speaking</div></div>
+</div>
+
+<div class="btn-row" style="margin-top:16px">
+  <a class="btn-big" href="{{ url_for('main.today') }}">继续冒险 Keep going</a>
+</div>
+{% endblock %}

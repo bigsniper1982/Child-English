@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}听音选图 · Adventure Island{% endblock %}
+{% block content %}
+<div class="section-title">👂 听音选图 Listen &amp; Choose</div>
+<div id="game"
+     data-submit-url="{{ url_for('main.games_listen_submit') }}"
+     data-back-url="{{ url_for('main.games') }}"
+     data-csrf="{{ csrf_token }}"
+     data-round='{{ rnd | tojson }}'>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/tts.js') }}"></script>
+<script src="{{ url_for('static', filename='js/game_listen.js') }}"></script>
+{% endblock %}

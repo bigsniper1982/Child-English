@@ -1,0 +1,19 @@
+{
+  "name": "英语冒险岛 English Adventure Island",
+  "short_name": "冒险岛",
+  "description": "A private English learning adventure for kids.",
+  "start_url": "/today",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eaf7f5",
+  "theme_color": "#3aa6a0",
+  "icons": [
+    {
+      "src": "/static/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

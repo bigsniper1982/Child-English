@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="96" fill="#3aa6a0"/>
+  <circle cx="256" cy="300" r="150" fill="#ffcf5c"/>
+  <!-- fox -->
+  <g transform="translate(256 268)">
+    <polygon points="-90,-60 -50,-110 -30,-55" fill="#ff8a5c"/>
+    <polygon points="90,-60 50,-110 30,-55" fill="#ff8a5c"/>
+    <path d="M-95 -50 Q0 -120 95 -50 Q95 70 0 100 Q-95 70 -95 -50 Z" fill="#ff8a5c"/>
+    <path d="M-55 40 Q0 90 55 40 Q40 95 0 100 Q-40 95 -55 40 Z" fill="#fff"/>
+    <circle cx="-38" cy="-10" r="14" fill="#243b45"/>
+    <circle cx="38" cy="-10" r="14" fill="#243b45"/>
+    <circle cx="0" cy="45" r="12" fill="#243b45"/>
+  </g>
+  <text x="256" y="478" font-family="Segoe UI,Arial,sans-serif" font-size="60"
+        font-weight="800" fill="#ffffff" text-anchor="middle">ABC</text>
+</svg>

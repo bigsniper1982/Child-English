@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#3aa6a0">
+  <title>{% block title %}英语冒险岛 · English Adventure Island{% endblock %}</title>
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
+  <link rel="icon" href="{{ url_for('static', filename='icons/icon.svg') }}" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon.svg') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  {% block chrome %}
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('main.today') }}">
+      <span class="brand-fox" aria-hidden="true">🦊</span>
+      <span class="brand-name">冒险岛</span>
+    </a>
+    {% if session.get('logged_in') %}
+    <nav class="topnav" aria-label="Main">
+      <a href="{{ url_for('main.today') }}">Today</a>
+      <a href="{{ url_for('main.games') }}">Games</a>
+      <a href="{{ url_for('main.speaking') }}">Speak</a>
+      <a href="{{ url_for('main.pet') }}">Fox</a>
+      <a href="{{ url_for('main.parent') }}">Parent</a>
+    </nav>
+    <form class="logout" method="post" action="{{ url_for('auth.logout') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button class="btn-ghost" type="submit">Exit</button>
+    </form>
+    {% endif %}
+  </header>
+  {% endblock %}
+
+  <main class="page">
+    {% block content %}{% endblock %}
+  </main>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register("{{ url_for('static', filename='sw.js') }}")
+          .catch(function () {});
+      });
+    }
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block body_class %}screen-login{% endblock %}
+{% block chrome %}{% endblock %}
+{% block content %}
+<div class="login-card">
+  <div class="login-hero" aria-hidden="true">🦊🏝️</div>
+  <h1>英语冒险岛</h1>
+  <p class="login-sub">English Adventure Island · 家庭登录</p>
+  {% if error %}<p class="form-error" role="alert">{{ error }}</p>{% endif %}
+  <form method="post" action="{{ url_for('auth.login', next=request.args.get('next')) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="password">家庭密码 / Family password</label>
+    <input id="password" name="password" type="password" autocomplete="current-password"
+           required autofocus>
+    <button class="btn-primary" type="submit">进入 Enter</button>
+  </form>
+  <p class="login-note">私人自用 · 未登录无法访问 · 不保存录音</p>
+</div>
+{% endblock %}

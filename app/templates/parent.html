@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}家长页 · Adventure Island{% endblock %}
+{% block content %}
+<div class="section-title">👪 家长页 Parent Dashboard</div>
+
+<div class="stat-row">
+  <div class="stat"><div class="num">{{ stats['learning_days'] }}</div><div class="lbl">学习天数 Days</div></div>
+  <div class="stat"><div class="num">{{ stats['known_words'] }}</div><div class="lbl">已掌握 Mastered</div></div>
+  <div class="stat"><div class="num">{{ stats['due_words'] }}</div><div class="lbl">待复习 To review</div></div>
+  <div class="stat"><div class="num">{{ stats['speaking_attempts'] }}</div><div class="lbl">开口次数 Speaking</div></div>
+</div>
+
+<div class="card">
+  <h2>学习进度</h2>
+  <p class="muted">主题 School Life · 共 {{ stats['total_words'] }} 词，已接触 {{ stats['seen_words'] }} 词。</p>
+  <div class="progress"><span style="width: {{ (stats['known_words'] / stats['total_words'] * 100) | round(0,'floor') }}%"></span></div>
+  <p class="muted">星星 ⭐ {{ child['stars'] }} · 小狐狸阶段 {{ child['fox_stage'] }}/4</p>
+</div>
+
+<div class="card">
+  <h2>隐私说明</h2>
+  <p class="muted">本站为家庭私人自用。本站服务器不会接收或保存原始录音，只保存“是否说出关键词”等学习结果。使用麦克风识别时，浏览器或其语音服务商可能处理语音，具体取决于所用浏览器的隐私政策；也可以始终使用文字输入。</p>
+</div>
+
+<div class="danger">
+  <h2>⚠️ 清除所有学习记录</h2>
+  <p class="muted">这会删除全部单词进度、游戏成绩、开口记录和星星，且无法恢复。</p>
+  <form method="post" action="{{ url_for('main.parent_clear') }}"
+        onsubmit="return confirm('确定要清除所有学习记录吗？此操作无法撤销。');">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button type="submit">清除所有数据 Clear all data</button>
+  </form>
+</div>
+{% endblock %}

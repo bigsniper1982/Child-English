@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}{{ '复习' if mode == 'review' else '学新词' }} · Adventure Island{% endblock %}
+{% block content %}
+<div class="section-title">
+  {% if mode == 'review' %}🔁 复习 Review{% else %}📚 学习新词 Learn{% endif %}
+</div>
+
+{% if words %}
+<div id="deck" class="deck"
+     data-mode="{{ mode }}"
+     data-review-url="{{ url_for('main.learn_review') }}"
+     data-csrf="{{ csrf_token }}"
+     data-today-url="{{ url_for('main.today') }}"
+     data-words='{{ words | tojson }}'>
+</div>
+<p id="cardcount" class="card-count"></p>
+{% else %}
+<div class="card done-banner">
+  <div class="big">🎉</div>
+  <p>太棒了！现在没有需要{{ '复习' if mode=='review' else '学习' }}的词。</p>
+  <a class="btn-secondary" href="{{ url_for('main.today') }}">回到今日任务</a>
+</div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/tts.js') }}"></script>
+<script src="{{ url_for('static', filename='js/learn.js') }}"></script>
+{% endblock %}

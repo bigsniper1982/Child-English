@@ -51,6 +51,23 @@ def record_review(child_id, word_id, correct, today=None):
     return dict(_row(child_id, word_id))
 
 
+def defer_word(child_id, word_id, today=None):
+    """Put a newly seen word into today's review queue without scoring it."""
+    today = today or dt.date.today()
+    db = get_db()
+    db.execute(
+        """INSERT INTO vocab_progress
+               (child_id, word_id, status, box, correct_count, wrong_count,
+                next_review, last_review)
+               VALUES (?, ?, 'learning', 0, 0, 0, ?, ?)
+               ON CONFLICT(child_id, word_id) DO NOTHING""",
+        (child_id, word_id, today.isoformat(), today.isoformat()),
+    )
+    db.commit()
+    record_activity_day(child_id, today.isoformat())
+    return dict(_row(child_id, word_id))
+
+
 def _ids_for(theme: str | None):
     return all_word_ids() if theme is None else word_ids(theme)
 

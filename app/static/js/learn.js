@@ -10,6 +10,7 @@
   var todayUrl = deck.dataset.todayUrl;
   var mode = deck.dataset.mode;
   var i = 0;
+  var submitting = false;
 
   var count = document.getElementById('cardcount');
 
@@ -23,6 +24,8 @@
     if (i >= words.length) { return finish(); }
     var w = words[i];
     if (count) count.textContent = (i + 1) + ' / ' + words.length;
+    var againLabel = mode === 'learn' ? '⏰ 稍后复习' :
+      (mode === 'practice' ? '⏭️ 下一个' : '🔁 再练一次');
     deck.innerHTML =
       '<div class="wordcard pop">' +
         '<div class="visual" style="background:' + esc(w.color) + '">' + esc(w.emoji) + '</div>' +
@@ -33,7 +36,7 @@
         '<div><span class="chunk">' + esc(w.chunk) + '</span></div>' +
         '<div class="example">' + esc(w.example) + '</div>' +
         '<div class="btn-row" style="margin-top:16px">' +
-          '<button class="btn-choice btn-again" id="again" style="flex:1">🔁 再练一次</button>' +
+          '<button class="btn-choice btn-again" id="again" style="flex:1">' + againLabel + '</button>' +
           '<button class="btn-choice btn-know" id="know" style="flex:1">✅ 我认识</button>' +
         '</div>' +
       '</div>';
@@ -51,13 +54,24 @@
       render();
       return;
     }
+    if (submitting) return;
+    submitting = true;
+    document.getElementById('again').disabled = true;
+    document.getElementById('know').disabled = true;
     fetch(reviewUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
       body: JSON.stringify({ word_id: wordId, correct: correct, mode: mode })
-    }).catch(function () {}).finally(function () {
+    }).then(function (response) {
+      if (!response.ok) throw new Error('save failed');
+      submitting = false;
       i += 1;
       render();
+    }).catch(function () {
+      submitting = false;
+      document.getElementById('again').disabled = false;
+      document.getElementById('know').disabled = false;
+      window.alert('没有保存成功，请再试一次。');
     });
   }
 

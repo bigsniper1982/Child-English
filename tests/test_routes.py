@@ -195,15 +195,41 @@ def url_for_text(path):
     return f'href="{path}"'
 
 
-def test_learn_review_practice_again_keeps_box_low(auth_client, app):
+def test_learn_defer_adds_word_to_today_review_list(auth_client, app):
     word_id = load_words()[1]["id"]
-    auth_client.post("/learn/review", headers=auth_client.api_headers, json={"word_id": word_id, "correct": False})
+    resp = auth_client.post(
+        "/learn/review", headers=auth_client.api_headers,
+        json={"word_id": word_id, "correct": False, "mode": "learn"},
+    )
+    assert resp.status_code == 200
     with app.app_context():
         row = get_db().execute(
             "SELECT * FROM vocab_progress WHERE word_id = ?", (word_id,)
         ).fetchone()
+        child_id = default_child_id()
         assert row["box"] == 0
-        assert row["wrong_count"] == 1
+        assert row["correct_count"] == 0
+        assert row["wrong_count"] == 0
+        assert row["next_review"] == dt.date.today().isoformat()
+        assert word_id in prog.due_words(child_id, theme="school_life")
+
+
+def test_defer_word_is_idempotent_under_duplicate_submission(app):
+    word_id = load_words()[2]["id"]
+    with app.app_context():
+        child_id = default_child_id()
+        prog.defer_word(child_id, word_id)
+        prog.defer_word(child_id, word_id)
+        count = get_db().execute(
+            "SELECT COUNT(*) c FROM vocab_progress WHERE child_id = ? AND word_id = ?",
+            (child_id, word_id),
+        ).fetchone()["c"]
+        assert count == 1
+
+
+def test_learn_page_script_labels_defer_action(client):
+    script = client.get("/static/js/learn.js").get_data(as_text=True)
+    assert "稍后复习" in script
 
 
 def test_learn_review_rejects_unknown_word(auth_client):

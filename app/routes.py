@@ -149,7 +149,10 @@ def learn_review():
         return jsonify(error="word already learned"), 409
     if mode == "review" and word_id not in prog.due_words(child_id, theme=theme):
         return jsonify(error="word is not due"), 409
-    row = prog.record_review(child_id, word_id, correct)
+    if mode == "learn" and not correct:
+        row = prog.defer_word(child_id, word_id)
+    else:
+        row = prog.record_review(child_id, word_id, correct)
     if correct:
         add_stars(child_id, 1)
     child = get_child(child_id)

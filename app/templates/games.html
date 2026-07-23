@@ -2,6 +2,10 @@
 {% block title %}小游戏 · Adventure Island{% endblock %}
 {% block content %}
 <div class="section-title">🎮 小游戏 Games</div>
+<div class="theme-strip">
+  <span>{{ theme['emoji'] }} {{ theme['title'] }} · {{ theme['title_zh'] }}</span>
+  <a href="{{ url_for('main.themes') }}">切换主题 Switch</a>
+</div>
 <div class="game-grid">
   <a class="game-tile" href="{{ url_for('main.games_listen') }}">
     <span class="ico">👂</span>

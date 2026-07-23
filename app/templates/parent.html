@@ -11,10 +11,20 @@
 </div>
 
 <div class="card">
-  <h2>学习进度</h2>
-  <p class="muted">主题 School Life · 共 {{ stats['total_words'] }} 词，已接触 {{ stats['seen_words'] }} 词。</p>
+  <h2>总体学习进度 Overall Progress</h2>
+  <p class="muted">共 {{ stats['total_words'] }} 词，已接触 {{ stats['seen_words'] }} 词。</p>
   <div class="progress"><span style="width: {{ (stats['known_words'] / stats['total_words'] * 100) | round(0,'floor') }}%"></span></div>
   <p class="muted">星星 ⭐ {{ child['stars'] }} · 小狐狸阶段 {{ child['fox_stage'] }}/4</p>
+</div>
+
+<div class="theme-progress-grid">
+{% for item in theme_stats %}
+  <div class="card theme-progress-card">
+    <h3>{{ item['theme']['emoji'] }} {{ item['theme']['title'] }} · {{ item['theme']['title_zh'] }}</h3>
+    <p class="muted">已接触 {{ item['stats']['seen_words'] }}/{{ item['stats']['total_words'] }} · 已掌握 {{ item['stats']['known_words'] }}</p>
+    <div class="progress"><span style="width: {{ (item['stats']['known_words'] / item['stats']['total_words'] * 100) | round(0,'floor') }}%"></span></div>
+  </div>
+{% endfor %}
 </div>
 
 <div class="card">

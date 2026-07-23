@@ -4,6 +4,9 @@
 <div class="section-title">
   {% if mode == 'review' %}🔁 复习 Review{% else %}📚 学习新词 Learn{% endif %}
 </div>
+<div class="theme-strip compact">
+  <span>{{ theme['emoji'] }} {{ theme['title'] }} · {{ theme['title_zh'] }}</span>
+</div>
 
 {% if words %}
 <div id="deck" class="deck"

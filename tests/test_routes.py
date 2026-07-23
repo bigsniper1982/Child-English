@@ -1,6 +1,7 @@
 """Integration tests for learning, games, speaking, parent and health routes."""
 from app import create_app
-from app.content import load_words
+from app import progress as prog
+from app.content import load_words, list_themes
 from app.db import get_db, default_child_id
 from app.games import make_listen_round, make_sentence_round
 
@@ -9,6 +10,101 @@ def test_healthz_ok(client):
     resp = client.get("/healthz")
     assert resp.status_code == 200
     assert resp.get_json()["status"] == "ok"
+
+
+def test_theme_picker_lists_both_themes(auth_client):
+    resp = auth_client.get("/themes")
+    html = resp.get_data(as_text=True)
+    assert resp.status_code == 200
+    for theme in list_themes():
+        assert theme["title"] in html
+        assert theme["title_zh"] in html
+
+
+def test_select_food_theme_changes_today_and_learn(auth_client):
+    resp = auth_client.post("/theme/select", headers=auth_client.api_headers,
+                            data={"theme": "food_and_drink"},
+                            follow_redirects=False)
+    assert resp.status_code == 302
+    with auth_client.session_transaction() as sess:
+        assert sess["theme"] == "food_and_drink"
+    today = auth_client.get("/today").get_data(as_text=True)
+    learn = auth_client.get("/learn").get_data(as_text=True)
+    assert "Food and Drink" in today
+    assert "food_apple" in learn
+
+
+def test_select_unknown_theme_is_rejected(auth_client):
+    resp = auth_client.post("/theme/select", headers=auth_client.api_headers,
+                            data={"theme": "../../etc/passwd"})
+    assert resp.status_code == 400
+    with auth_client.session_transaction() as sess:
+        assert sess.get("theme", "school_life") == "school_life"
+
+
+def test_theme_progress_is_kept_separate(auth_client, app):
+    auth_client.post("/learn/review", headers=auth_client.api_headers,
+                     json={"word_id": "teacher", "correct": True})
+    auth_client.post("/theme/select", headers=auth_client.api_headers,
+                     data={"theme": "food_and_drink"})
+    auth_client.post("/learn/review", headers=auth_client.api_headers,
+                     json={"word_id": "food_apple", "correct": True})
+    with app.app_context():
+        child_id = default_child_id()
+        school = prog.stats(child_id, theme="school_life")
+        food = prog.stats(child_id, theme="food_and_drink")
+        overall = prog.stats(child_id, theme=None)
+        assert school["seen_words"] == 1 and school["total_words"] == 30
+        assert food["seen_words"] == 1 and food["total_words"] == 30
+        assert overall["seen_words"] == 2 and overall["total_words"] == 60
+
+
+def test_food_theme_games_only_use_food_words(auth_client):
+    auth_client.post("/theme/select", headers=auth_client.api_headers,
+                     data={"theme": "food_and_drink"})
+    auth_client.get("/games/listen")
+    with auth_client.session_transaction() as sess:
+        seed = sess["listen_seed"]
+        assert sess["listen_theme"] == "food_and_drink"
+    rnd = make_listen_round(seed=seed, theme="food_and_drink")
+    assert all(q["answer_id"].startswith("food_") for q in rnd["questions"])
+
+
+def test_food_theme_speaking_uses_cafe_scenario(auth_client):
+    auth_client.post("/theme/select", headers=auth_client.api_headers,
+                     data={"theme": "food_and_drink"})
+    html = auth_client.get("/speaking").get_data(as_text=True)
+    assert "Friendly Café" in html
+    resp = auth_client.post("/speaking/attempt", headers=auth_client.api_headers,
+                            json={"turn": 0, "text": "I would like some water please."})
+    assert resp.status_code == 200
+    assert resp.get_json()["hit"] is True
+
+
+def test_speaking_attempt_stays_with_page_theme_after_other_tab_switch(auth_client, app):
+    page = auth_client.get("/speaking").get_data(as_text=True)
+    assert 'data-theme="school_life"' in page
+    auth_client.post("/theme/select", headers=auth_client.api_headers,
+                     data={"theme": "food_and_drink"})
+    resp = auth_client.post("/speaking/attempt", headers=auth_client.api_headers,
+                            json={"turn": 0,
+                                  "text": "My favourite subject is science.",
+                                  "theme": "school_life"})
+    assert resp.status_code == 200
+    assert resp.get_json()["hit"] is True
+    with app.app_context():
+        row = get_db().execute(
+            "SELECT scenario FROM speaking_attempts ORDER BY id DESC LIMIT 1"
+        ).fetchone()
+        assert row["scenario"] == "school_helper"
+
+
+def test_speaking_attempt_rejects_unknown_theme(auth_client):
+    resp = auth_client.post("/speaking/attempt", headers=auth_client.api_headers,
+                            json={"turn": 0, "text": "hello",
+                                  "theme": "../../etc/passwd"})
+    assert resp.status_code == 400
+    assert resp.get_json()["error"] == "bad theme"
 
 
 def test_learn_review_writes_progress(auth_client, app):

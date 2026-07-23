@@ -1,10 +1,12 @@
 {% extends "base.html" %}
-{% block title %}School Helper · Adventure Island{% endblock %}
+{% block title %}{{ scenario['title'] }} · Adventure Island{% endblock %}
 {% block content %}
 <div class="section-title">🎤 {{ scenario['title'] }}</div>
+<div class="theme-strip compact"><span>{{ theme['emoji'] }} {{ theme['title'] }} · {{ theme['title_zh'] }}</span></div>
 <p class="muted">{{ scenario['intro'] }}</p>
 
 <div id="chat"
+     data-theme="{{ theme['id'] }}"
      data-attempt-url="{{ url_for('main.speaking_attempt') }}"
      data-csrf="{{ csrf_token }}"
      data-back-url="{{ url_for('main.today') }}"

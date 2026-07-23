@@ -7,6 +7,7 @@
   if (!root) return;
 
   var turns = JSON.parse(root.dataset.turns || '[]');
+  var theme = root.dataset.theme || 'school_life';
   var attemptUrl = root.dataset.attemptUrl;
   var csrf = root.dataset.csrf;
   var backUrl = root.dataset.backUrl;
@@ -101,7 +102,7 @@
     fetch(attemptUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
-      body: JSON.stringify({ turn: idx, text: text })
+      body: JSON.stringify({ turn: idx, text: text, theme: theme })
     }).then(function (r) { return r.json(); }).then(function (d) {
       handle(d, text);
     }).catch(function () { showHeard('网络出了点问题，请再试一次。'); });

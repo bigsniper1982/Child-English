@@ -1,6 +1,7 @@
 """Tests for the controlled 'School Helper' speaking dialogue engine."""
 from app.dialogue import (
     SCENARIO,
+    get_scenario,
     get_turn,
     num_turns,
     evaluate,
@@ -68,6 +69,22 @@ def test_never_claims_official_score():
     blob = (result["feedback"] + " " + SCENARIO.get("disclaimer", "")).lower()
     assert "ket" not in blob
     assert "%" not in blob and "score" not in blob
+
+
+def test_food_theme_has_controlled_cafe_scenario():
+    scenario = get_scenario("food_and_drink")
+    assert scenario["id"] == "friendly_cafe"
+    assert scenario["title"] == "Friendly Café"
+    assert 3 <= num_turns("food_and_drink") <= 5
+    assert "water" in get_turn(0, "food_and_drink")["keywords"]
+
+
+def test_food_answer_gets_theme_specific_feedback():
+    result = evaluate(0, "I would like some water please.", "food_and_drink")
+    assert result["hit"] is True
+    assert result["advance"] is True
+    assert result["complete_sentence"] is True
+    assert result["stars"] == 2
 
 
 def test_completeness_bonus_for_full_sentence():

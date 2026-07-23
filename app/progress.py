@@ -2,7 +2,7 @@
 import datetime as dt
 
 from app import srs
-from app.content import word_ids
+from app.content import all_word_ids, word_ids
 from app.db import get_db, record_activity_day
 
 
@@ -51,33 +51,44 @@ def record_review(child_id, word_id, correct, today=None):
     return dict(_row(child_id, word_id))
 
 
-def due_words(child_id, today=None):
-    """Word ids that are due for review (never-seen words are not 'due')."""
+def _ids_for(theme: str | None):
+    return all_word_ids() if theme is None else word_ids(theme)
+
+
+def due_words(child_id, today=None, theme: str | None = None):
+    """Due word ids, optionally restricted to one curriculum theme."""
     today = today or dt.date.today()
+    allowed = set(_ids_for(theme))
     rows = get_db().execute(
         "SELECT word_id, next_review FROM vocab_progress WHERE child_id = ?",
         (child_id,),
     ).fetchall()
     due = []
-    for r in rows:
-        review = dt.date.fromisoformat(r["next_review"]) if r["next_review"] else None
+    for row in rows:
+        if row["word_id"] not in allowed:
+            continue
+        review = dt.date.fromisoformat(row["next_review"]) if row["next_review"] else None
         if srs.is_due(review, today):
-            due.append(r["word_id"])
+            due.append(row["word_id"])
     return due
 
 
-def stats(child_id, today=None):
-    """Summary numbers for the parent dashboard."""
+def stats(child_id, today=None, theme: str | None = "school_life"):
+    """Summary numbers for one theme, or all themes when ``theme`` is None."""
     today = today or dt.date.today()
     db = get_db()
-    total_words = len(word_ids())
+    ids = _ids_for(theme)
+    placeholders = ",".join("?" for _ in ids)
+    params = (child_id, *ids)
     known = db.execute(
-        "SELECT COUNT(*) c FROM vocab_progress WHERE child_id = ? AND status = 'known'",
-        (child_id,),
+        f"SELECT COUNT(*) c FROM vocab_progress WHERE child_id = ? "
+        f"AND status = 'known' AND word_id IN ({placeholders})",
+        params,
     ).fetchone()["c"]
     seen = db.execute(
-        "SELECT COUNT(*) c FROM vocab_progress WHERE child_id = ?",
-        (child_id,),
+        f"SELECT COUNT(*) c FROM vocab_progress WHERE child_id = ? "
+        f"AND word_id IN ({placeholders})",
+        params,
     ).fetchone()["c"]
     days = db.execute(
         "SELECT COUNT(*) c FROM activity_days WHERE child_id = ?",
@@ -88,10 +99,10 @@ def stats(child_id, today=None):
         (child_id,),
     ).fetchone()["c"]
     return {
-        "total_words": total_words,
+        "total_words": len(ids),
         "seen_words": seen,
         "known_words": known,
-        "due_words": len(due_words(child_id, today)),
+        "due_words": len(due_words(child_id, today, theme)),
         "learning_days": days,
         "speaking_attempts": speaks,
     }

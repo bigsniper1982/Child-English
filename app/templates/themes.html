@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}选择主题 · Adventure Island{% endblock %}
+{% block content %}
+<div class="section-title">🗺️ 选择冒险主题 Choose a Theme</div>
+<p class="muted">每个主题都有30个原创词汇、两种小游戏和专属口语任务。</p>
+
+<div class="theme-grid">
+{% for theme in themes %}
+  <article class="theme-card{% if theme['id'] == current %} active{% endif %}">
+    <div class="theme-emoji" aria-hidden="true">{{ theme['emoji'] }}</div>
+    <div>
+      <h2>{{ theme['title'] }}</h2>
+      <p class="theme-zh">{{ theme['title_zh'] }}</p>
+      <p class="muted">{{ theme['description'] }}</p>
+    </div>
+    {% if theme['id'] == current %}
+      <span class="current-badge">✓ 当前主题 Current</span>
+    {% else %}
+      <form method="post" action="{{ url_for('main.theme_select') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="theme" value="{{ theme['id'] }}">
+        <button class="btn-primary" type="submit">开始这个主题 Start</button>
+      </form>
+    {% endif %}
+  </article>
+{% endfor %}
+</div>
+{% endblock %}

@@ -12,7 +12,10 @@
 <div class="progress" aria-label="Theme progress">
   <span style="width: {{ (stats['known_words'] / stats['total_words'] * 100) | round(0, 'floor') }}%"></span>
 </div>
-<p class="muted">主题 School Life · 校园生活</p>
+<div class="theme-strip">
+  <span>{{ theme['emoji'] }} 主题 {{ theme['title'] }} · {{ theme['title_zh'] }}</span>
+  <a href="{{ url_for('main.themes') }}">切换主题 Switch</a>
+</div>
 
 <div class="section-title">📋 今日任务 Today's Quest</div>
 
@@ -39,7 +42,7 @@
 <a class="card game-tile" href="{{ url_for('main.speaking') }}">
   <span class="ico">🎤</span>
   <h3>4. 开口说 Speak</h3>
-  <p class="muted">和 School Helper 聊一聊</p>
+  <p class="muted">和 {{ speaking_title }} 聊一聊</p>
 </a>
 
 <a class="card game-tile" href="{{ url_for('main.pet') }}">

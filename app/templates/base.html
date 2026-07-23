@@ -20,6 +20,7 @@
     {% if session.get('logged_in') %}
     <nav class="topnav" aria-label="Main">
       <a href="{{ url_for('main.today') }}">Today</a>
+      <a href="{{ url_for('main.themes') }}">Themes</a>
       <a href="{{ url_for('main.games') }}">Games</a>
       <a href="{{ url_for('main.speaking') }}">Speak</a>
       <a href="{{ url_for('main.pet') }}">Fox</a>

@@ -2,6 +2,8 @@
   "theme": "school_life",
   "title": "School Life",
   "title_zh": "校园生活",
+  "emoji": "🏫",
+  "description": "Learn to talk about lessons, school places and classroom items.",
   "source": "Original content written for the English Adventure Island private MVP.",
   "words": [
     {"id": "teacher", "en": "teacher", "zh": "老师", "pos": "noun", "emoji": "👩‍🏫", "color": "#F6A5C0", "chunk": "my teacher", "example": "My teacher is very kind."},

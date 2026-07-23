@@ -1,4 +1,6 @@
-"""Tests for the controlled 'School Helper' speaking dialogue engine."""
+"""Tests for the controlled theme speaking dialogue engine."""
+import pytest
+
 from app.dialogue import (
     SCENARIO,
     get_scenario,
@@ -77,6 +79,23 @@ def test_food_theme_has_controlled_cafe_scenario():
     assert scenario["title"] == "Friendly Café"
     assert 3 <= num_turns("food_and_drink") <= 5
     assert "water" in get_turn(0, "food_and_drink")["keywords"]
+
+
+@pytest.mark.parametrize(
+    ("theme", "scenario_id", "title", "keyword"),
+    [
+        ("animals_nature", "nature_explorer", "Nature Explorer", "dog"),
+        ("family_home", "home_helper", "Home Helper", "mother"),
+        ("daily_routines", "day_planner", "My Day Planner", "seven"),
+    ],
+)
+def test_new_themes_have_controlled_speaking_scenarios(
+        theme, scenario_id, title, keyword):
+    scenario = get_scenario(theme)
+    assert scenario["id"] == scenario_id
+    assert scenario["title"] == title
+    assert 3 <= num_turns(theme) <= 5
+    assert keyword in get_turn(0, theme)["keywords"]
 
 
 def test_food_answer_gets_theme_specific_feedback():

@@ -14,7 +14,7 @@ def test_healthz_ok(client):
     assert resp.get_json()["status"] == "ok"
 
 
-def test_theme_picker_lists_both_themes(auth_client):
+def test_theme_picker_lists_all_themes(auth_client):
     resp = auth_client.get("/themes")
     html = resp.get_data(as_text=True)
     assert resp.status_code == 200
@@ -34,6 +34,30 @@ def test_select_food_theme_changes_today_and_learn(auth_client):
     learn = auth_client.get("/learn").get_data(as_text=True)
     assert "Food and Drink" in today
     assert "food_apple" in learn
+
+
+def test_each_new_theme_runs_end_to_end(auth_client):
+    cases = [
+        ("animals_nature", "Animals and Nature", "nature_", "Nature Explorer"),
+        ("family_home", "Family and Home", "home_", "Home Helper"),
+        ("daily_routines", "Daily Routines", "routine_", "My Day Planner"),
+    ]
+    for theme, title, prefix, speaking_title in cases:
+        resp = auth_client.post(
+            "/theme/select", headers=auth_client.api_headers,
+            data={"theme": theme}, follow_redirects=False,
+        )
+        assert resp.status_code == 302
+        assert title in auth_client.get("/today").get_data(as_text=True)
+        assert prefix in auth_client.get("/learn").get_data(as_text=True)
+        auth_client.get("/games/listen")
+        with auth_client.session_transaction() as sess:
+            assert sess["listen_theme"] == theme
+            seed = sess["listen_seed"]
+        game = make_listen_round(seed=seed, theme=theme)
+        assert all(question["answer_id"].startswith(prefix)
+                   for question in game["questions"])
+        assert speaking_title in auth_client.get("/speaking").get_data(as_text=True)
 
 
 def test_select_unknown_theme_is_rejected(auth_client):
@@ -58,7 +82,7 @@ def test_theme_progress_is_kept_separate(auth_client, app):
         overall = prog.stats(child_id, theme=None)
         assert school["seen_words"] == 1 and school["total_words"] == 30
         assert food["seen_words"] == 1 and food["total_words"] == 30
-        assert overall["seen_words"] == 2 and overall["total_words"] == 60
+        assert overall["seen_words"] == 2 and overall["total_words"] == 150
 
 
 def test_food_theme_games_only_use_food_words(auth_client):

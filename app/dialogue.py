@@ -71,6 +71,96 @@ SCENARIOS = {
             },
         ],
     },
+    "animals_nature": {
+        "id": "nature_explorer",
+        "title": "Nature Explorer",
+        "intro": "Welcome, explorer! Let's talk about animals and the world outside.",
+        "topic": "animals and nature",
+        "disclaimer": "This is friendly speaking practice. Use a word or a whole sentence.",
+        "turns": [
+            {
+                "question": "Which animal do you like?",
+                "sentence_frame": "I like the ____.",
+                "keywords": ["dog", "cat", "bird", "rabbit", "horse", "panda",
+                             "elephant", "lion", "tiger", "monkey", "bear"],
+            },
+            {
+                "question": "Where does that animal live?",
+                "sentence_frame": "It lives in the ____.",
+                "keywords": ["forest", "river", "mountain", "garden", "farm", "water"],
+            },
+            {
+                "question": "What can you see outside today?",
+                "sentence_frame": "I can see a ____.",
+                "keywords": ["tree", "flower", "bird", "butterfly", "bee", "sky",
+                             "sun", "moon", "mountain", "river"],
+            },
+            {
+                "question": "How can we help nature?",
+                "sentence_frame": "We can ____ nature.",
+                "keywords": ["protect", "clean", "help", "plant", "save", "recycle"],
+            },
+        ],
+    },
+    "family_home": {
+        "id": "home_helper",
+        "title": "Home Helper",
+        "intro": "Hello! Let's talk about your family and how you help at home.",
+        "topic": "family and home",
+        "disclaimer": "This is friendly speaking practice. Share only simple, safe details.",
+        "turns": [
+            {
+                "question": "Who is in your family?",
+                "sentence_frame": "There is my ____ in my family.",
+                "keywords": ["mother", "father", "parent", "brother", "sister", "baby",
+                             "grandmother", "grandfather"],
+            },
+            {
+                "question": "Which room do you like at home?",
+                "sentence_frame": "I like the ____.",
+                "keywords": ["bedroom", "bathroom", "kitchen", "living", "room", "garden"],
+            },
+            {
+                "question": "What do you do to help at home?",
+                "sentence_frame": "I help to ____.",
+                "keywords": ["clean", "tidy", "cook", "wash", "share", "help"],
+            },
+            {
+                "question": "What does your family do together?",
+                "sentence_frame": "We ____ together.",
+                "keywords": ["eat", "read", "play", "cook", "talk", "walk", "work"],
+            },
+        ],
+    },
+    "daily_routines": {
+        "id": "day_planner",
+        "title": "My Day Planner",
+        "intro": "Let's plan a happy day from morning to bedtime!",
+        "topic": "daily routines",
+        "disclaimer": "This is friendly speaking practice, not a test or a strict timetable.",
+        "turns": [
+            {
+                "question": "What time do you get up?",
+                "sentence_frame": "I get up at ____.",
+                "keywords": ["six", "seven", "eight", "six-thirty", "seven-thirty"],
+            },
+            {
+                "question": "What do you do before school?",
+                "sentence_frame": "Before school I ____.",
+                "keywords": ["wash", "brush", "dress", "eat", "read", "walk"],
+            },
+            {
+                "question": "What do you do after school?",
+                "sentence_frame": "After school I ____.",
+                "keywords": ["study", "play", "exercise", "read", "relax", "homework"],
+            },
+            {
+                "question": "What do you do before bed?",
+                "sentence_frame": "Before bed I ____.",
+                "keywords": ["shower", "read", "brush", "relax", "sleep"],
+            },
+        ],
+    },
 }
 
 # Backwards-compatible alias used by existing code and tests.

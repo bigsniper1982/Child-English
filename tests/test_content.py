@@ -8,9 +8,15 @@ HEX_RE = re.compile(r"^#[0-9A-Fa-f]{6}$")
 REQUIRED = ("id", "en", "zh", "pos", "emoji", "color", "chunk", "example")
 
 
-def test_two_original_themes_with_30_words_each():
+def test_five_original_themes_with_30_words_each():
     themes = list_themes()
-    assert [t["id"] for t in themes] == ["school_life", "food_and_drink"]
+    assert [t["id"] for t in themes] == [
+        "school_life",
+        "food_and_drink",
+        "animals_nature",
+        "family_home",
+        "daily_routines",
+    ]
     for theme in themes:
         assert len(load_words(theme["id"])) == 30
         assert theme["title"] and theme["title_zh"] and theme["emoji"]
@@ -26,7 +32,7 @@ def test_theme_lookup_rejects_unknown_or_path_like_names():
 
 def test_word_ids_are_unique_across_all_themes():
     ids = [w["id"] for t in list_themes() for w in load_words(t["id"])]
-    assert len(ids) == 60
+    assert len(ids) == 150
     assert len(set(ids)) == len(ids)
 
 

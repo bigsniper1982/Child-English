@@ -11,6 +11,9 @@ DEFAULT_THEME = "school_life"
 _THEME_FILES = {
     "school_life": "school_life.json",
     "food_and_drink": "food_and_drink.json",
+    "animals_nature": "animals_nature.json",
+    "family_home": "family_home.json",
+    "daily_routines": "daily_routines.json",
 }
 
 

@@ -180,6 +180,7 @@ button{font-family:inherit}
 }
 .theme-strip.compact{display:inline-flex;margin:0 0 12px}
 .theme-strip a{white-space:nowrap}
+.info-banner{background:#eef8ff;border:2px solid #b8dcf2;border-radius:16px;padding:12px 14px;margin:0 0 16px;color:#345b70;font-weight:700}
 .theme-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:16px}
 @media(min-width:620px){.theme-grid{grid-template-columns:1fr 1fr}}
 .theme-card{

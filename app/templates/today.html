@@ -22,7 +22,11 @@
 <a class="card game-tile" href="{{ url_for('main.review') }}">
   <span class="ico">🔁</span>
   <h3>1. 复习旧词 Review</h3>
-  <p class="muted">{{ due_count }} 个词待复习 due today</p>
+  <p class="muted">
+    {% if due_count %}{{ due_count }} 个词待复习 due today
+    {% elif stats['seen_words'] %}今天无到期词，可自由巩固已学单词
+    {% else %}先学习新词，之后会按1/3/7/14天安排复习{% endif %}
+  </p>
 </a>
 
 <a class="card game-tile" href="{{ url_for('main.learn') }}">

@@ -1,4 +1,6 @@
 """Integration tests for learning, games, speaking, parent and health routes."""
+import datetime as dt
+
 from app import create_app
 from app import progress as prog
 from app.content import load_words, list_themes
@@ -120,8 +122,77 @@ def test_learn_review_writes_progress(auth_client, app):
             "SELECT * FROM vocab_progress WHERE word_id = ?", (word_id,)
         ).fetchone()
         assert row is not None
-        assert row["box"] == 1
+        assert row["box"] == 0
+        assert row["next_review"] == (dt.date.today() + dt.timedelta(days=1)).isoformat()
         assert row["correct_count"] == 1
+
+
+def test_duplicate_or_early_review_cannot_reschedule_or_add_stars(auth_client, app):
+    word_id = load_words()[0]["id"]
+    first = auth_client.post("/learn/review", headers=auth_client.api_headers,
+                             json={"word_id": word_id, "correct": True,
+                                   "mode": "learn"})
+    assert first.status_code == 200
+    stars = first.get_json()["stars"]
+
+    duplicate = auth_client.post("/learn/review", headers=auth_client.api_headers,
+                                 json={"word_id": word_id, "correct": True,
+                                       "mode": "learn"})
+    early = auth_client.post("/learn/review", headers=auth_client.api_headers,
+                             json={"word_id": word_id, "correct": True,
+                                   "mode": "review"})
+    practice = auth_client.post("/learn/review", headers=auth_client.api_headers,
+                                json={"word_id": word_id, "correct": True,
+                                      "mode": "practice"})
+    assert duplicate.status_code == 409
+    assert early.status_code == 409
+    assert practice.status_code == 400
+    with app.app_context():
+        child = get_db().execute("SELECT stars FROM children WHERE id = 1").fetchone()
+        row = get_db().execute(
+            "SELECT correct_count, box FROM vocab_progress WHERE word_id = ?",
+            (word_id,),
+        ).fetchone()
+        assert child["stars"] == stars
+        assert row["correct_count"] == 1
+        assert row["box"] == 0
+
+
+def test_due_review_is_accepted(auth_client, app):
+    word_id = load_words()[0]["id"]
+    auth_client.post("/learn/review", headers=auth_client.api_headers,
+                     json={"word_id": word_id, "correct": True, "mode": "learn"})
+    with app.app_context():
+        get_db().execute(
+            "UPDATE vocab_progress SET next_review = ? WHERE word_id = ?",
+            ((dt.date.today() - dt.timedelta(days=1)).isoformat(), word_id),
+        )
+        get_db().commit()
+    resp = auth_client.post("/learn/review", headers=auth_client.api_headers,
+                            json={"word_id": word_id, "correct": True,
+                                  "mode": "review"})
+    assert resp.status_code == 200
+
+
+def test_review_offers_manual_practice_when_nothing_is_due(auth_client):
+    word_id = load_words()[0]["id"]
+    auth_client.post("/learn/review", headers=auth_client.api_headers,
+                     json={"word_id": word_id, "correct": True})
+    html = auth_client.get("/review").get_data(as_text=True)
+    assert 'data-mode="practice"' in html
+    assert "今天没有到期复习的词" in html
+    assert word_id in html
+
+
+def test_review_empty_state_guides_child_to_learn(auth_client):
+    html = auth_client.get("/review").get_data(as_text=True)
+    assert "还没有学过的单词" in html
+    assert url_for_text("/learn") in html
+
+
+def url_for_text(path):
+    """Keep route-presence assertions explicit without requiring a request context."""
+    return f'href="{path}"'
 
 
 def test_learn_review_practice_again_keeps_box_low(auth_client, app):

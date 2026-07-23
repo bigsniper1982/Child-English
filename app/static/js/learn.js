@@ -46,10 +46,15 @@
   }
 
   function answer(wordId, correct) {
+    if (mode === 'practice') {
+      i += 1;
+      render();
+      return;
+    }
     fetch(reviewUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
-      body: JSON.stringify({ word_id: wordId, correct: correct })
+      body: JSON.stringify({ word_id: wordId, correct: correct, mode: mode })
     }).catch(function () {}).finally(function () {
       i += 1;
       render();
@@ -58,10 +63,12 @@
 
   function finish() {
     if (count) count.textContent = '';
+    var message = mode === 'review' ? '复习完成！' :
+      (mode === 'practice' ? '自由巩固完成！' : '新词学完啦！');
     deck.innerHTML =
       '<div class="done-banner">' +
         '<div class="big">🎉</div>' +
-        '<p>' + (mode === 'review' ? '复习完成！' : '新词学完啦！') + '</p>' +
+        '<p>' + message + '</p>' +
         '<a class="btn-secondary" href="' + todayUrl + '">回到今日任务</a>' +
       '</div>';
   }

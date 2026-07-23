@@ -22,7 +22,7 @@ def record_review(child_id, word_id, correct, today=None):
     today = today or dt.date.today()
     db = get_db()
     row = _row(child_id, word_id)
-    current_box = row["box"] if row else 0
+    current_box = row["box"] if row else -1
     new_box, next_review = srs.schedule(current_box, correct, today)
     status = "known" if (correct and new_box >= srs.MAX_BOX) else "learning"
 
@@ -71,6 +71,19 @@ def due_words(child_id, today=None, theme: str | None = None):
         if srs.is_due(review, today):
             due.append(row["word_id"])
     return due
+
+
+def studied_words(child_id, theme: str, limit=10):
+    """Most recently studied word ids for optional, non-SRS practice."""
+    ids = _ids_for(theme)
+    placeholders = ",".join("?" for _ in ids)
+    rows = get_db().execute(
+        f"SELECT word_id FROM vocab_progress WHERE child_id = ? "
+        f"AND word_id IN ({placeholders}) "
+        "ORDER BY last_review DESC, id DESC LIMIT ?",
+        (child_id, *ids, limit),
+    ).fetchall()
+    return [row["word_id"] for row in rows]
 
 
 def stats(child_id, today=None, theme: str | None = "school_life"):

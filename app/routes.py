@@ -107,7 +107,7 @@ def learn():
     new_words = [word for word in theme_words
                  if word["id"] not in seen][:NEW_WORDS_PER_DAY]
     if not new_words:
-        new_words = theme_words[:NEW_WORDS_PER_DAY]
+        return redirect(url_for("main.review"))
     return render_template("learn.html", words=new_words, mode="learn",
                            theme=get_theme(theme_id))
 
@@ -118,9 +118,14 @@ def review():
     child_id = _child()
     theme_id = _theme()
     due = prog.due_words(child_id, theme=theme_id)
-    words = [get_word(word_id, theme_id) for word_id in due]
+    mode = "review"
+    word_ids = due
+    if not due:
+        mode = "practice"
+        word_ids = prog.studied_words(child_id, theme_id)
+    words = [get_word(word_id, theme_id) for word_id in word_ids]
     return render_template("learn.html", words=[word for word in words if word],
-                           mode="review", theme=get_theme(theme_id))
+                           mode=mode, theme=get_theme(theme_id))
 
 
 @bp.route("/learn/review", methods=["POST"])
@@ -130,8 +135,20 @@ def learn_review():
     data = request.get_json(silent=True) or request.form
     word_id = data.get("word_id")
     correct = str(data.get("correct")).lower() in ("true", "1", "yes")
-    if not get_word(word_id, _theme()):
+    mode = data.get("mode", "learn")
+    theme = _theme()
+    if not get_word(word_id, theme):
         return jsonify(error="unknown word"), 400
+    if mode not in ("learn", "review"):
+        return jsonify(error="invalid review mode"), 400
+    existing = get_db().execute(
+        "SELECT 1 FROM vocab_progress WHERE child_id = ? AND word_id = ?",
+        (child_id, word_id),
+    ).fetchone()
+    if mode == "learn" and existing:
+        return jsonify(error="word already learned"), 409
+    if mode == "review" and word_id not in prog.due_words(child_id, theme=theme):
+        return jsonify(error="word is not due"), 409
     row = prog.record_review(child_id, word_id, correct)
     if correct:
         add_stars(child_id, 1)

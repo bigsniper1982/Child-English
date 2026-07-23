@@ -1,12 +1,15 @@
 {% extends "base.html" %}
-{% block title %}{{ '复习' if mode == 'review' else '学新词' }} · Adventure Island{% endblock %}
+{% block title %}{% if mode == 'review' %}复习{% elif mode == 'practice' %}自由巩固{% else %}学新词{% endif %} · Adventure Island{% endblock %}
 {% block content %}
 <div class="section-title">
-  {% if mode == 'review' %}🔁 复习 Review{% else %}📚 学习新词 Learn{% endif %}
+  {% if mode == 'review' %}🔁 到期复习 Review{% elif mode == 'practice' %}🌱 自由巩固 Practice{% else %}📚 学习新词 Learn{% endif %}
 </div>
 <div class="theme-strip compact">
   <span>{{ theme['emoji'] }} {{ theme['title'] }} · {{ theme['title_zh'] }}</span>
 </div>
+{% if mode == 'practice' and words %}
+<div class="info-banner">今天没有到期复习的词。这里可以自由巩固已学单词，不改变下次复习日期，也不重复加星。</div>
+{% endif %}
 
 {% if words %}
 <div id="deck" class="deck"
@@ -20,8 +23,13 @@
 {% else %}
 <div class="card done-banner">
   <div class="big">🎉</div>
-  <p>太棒了！现在没有需要{{ '复习' if mode=='review' else '学习' }}的词。</p>
-  <a class="btn-secondary" href="{{ url_for('main.today') }}">回到今日任务</a>
+  {% if mode == 'practice' %}
+    <p>这个主题还没有学过的单词，先完成今天的新词任务吧！</p>
+    <a class="btn-primary" href="{{ url_for('main.learn') }}">去学新词 Learn now</a>
+  {% else %}
+    <p>太棒了！现在没有需要复习的词。</p>
+    <a class="btn-secondary" href="{{ url_for('main.today') }}">回到今日任务</a>
+  {% endif %}
 </div>
 {% endif %}
 {% endblock %}

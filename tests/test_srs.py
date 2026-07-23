@@ -44,6 +44,12 @@ def test_next_review_date_uses_interval_for_box():
     assert next_review_date(3, TODAY) == TODAY + dt.timedelta(days=14)
 
 
+def test_first_learning_starts_at_one_day_interval():
+    box, due = schedule(current_box=-1, correct=True, today=TODAY)
+    assert box == 0
+    assert due == TODAY + dt.timedelta(days=1)
+
+
 def test_schedule_returns_new_box_and_due_date_on_correct():
     box, due = schedule(current_box=1, correct=True, today=TODAY)
     assert box == 2

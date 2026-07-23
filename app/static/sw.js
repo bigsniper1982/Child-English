@@ -1,6 +1,6 @@
 /* Minimal offline-friendly service worker. Caches the app shell and static
    assets; network-first for navigation so login/auth always works online. */
-var CACHE = 'adventure-island-v3';
+var CACHE = 'adventure-island-v4';
 var SHELL = [
   '/static/css/style.css',
   '/static/js/tts.js',

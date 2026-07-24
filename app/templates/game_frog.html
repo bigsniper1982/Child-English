@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}小青蛙过河 · Adventure Island{% endblock %}
+{% block content %}
+<div class="section-title">🐸 小青蛙过河 Frog River</div>
+<div class="theme-strip">
+  <span>{{ theme['emoji'] }} {{ theme['title'] }} · {{ theme['title_zh'] }}</span>
+  <a href="{{ url_for('main.games') }}">返回游戏 Games</a>
+</div>
+<p class="frog-instruction">看中文提示，找到正确的英文单词。答对后，小青蛙才能跳向下一片荷叶！</p>
+<div id="frog-game"
+     data-submit-url="{{ url_for('main.games_frog_submit') }}"
+     data-back-url="{{ url_for('main.games') }}"
+     data-csrf="{{ csrf_token }}"
+     data-round='{{ rnd | tojson }}'>
+  <noscript>请启用JavaScript来帮助小青蛙过河。</noscript>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/game_frog.js') }}"></script>
+{% endblock %}

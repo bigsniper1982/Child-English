@@ -69,7 +69,8 @@ def theme_select():
         return jsonify(error="unknown theme"), 400
     session["theme"] = theme
     # A round belongs to the theme it was created for; switching invalidates it.
-    for key in ("listen_seed", "listen_theme", "sentence_seed", "sentence_theme"):
+    for key in ("listen_seed", "listen_theme", "sentence_seed", "sentence_theme",
+                "frog_seed", "frog_theme"):
         session.pop(key, None)
     return redirect(url_for("main.today"))
 
@@ -216,6 +217,35 @@ def games_sentence_submit():
     rnd = game_engine.make_sentence_round(seed=seed, theme=theme)
     score, total = game_engine.grade_sentence(rnd, data.get("answers", {}))
     _save_game(child_id, "sentence", score, total)
+    return jsonify(score=score, total=total, stars=score)
+
+
+@bp.route("/games/frog")
+@login_required
+def games_frog():
+    seed = random.randrange(1, 10_000_000)
+    theme = _theme()
+    session["frog_seed"] = seed
+    session["frog_theme"] = theme
+    rnd = game_engine.make_frog_round(seed=seed, theme=theme)
+    return render_template("game_frog.html", rnd=rnd, theme=get_theme(theme))
+
+
+@bp.route("/games/frog/submit", methods=["POST"])
+@login_required
+def games_frog_submit():
+    child_id = _child()
+    data = request.get_json(silent=True) or {}
+    answers = data.get("answers", {})
+    if not isinstance(answers, dict):
+        return jsonify(error="bad answers"), 400
+    seed = session.pop("frog_seed", None)
+    theme = session.pop("frog_theme", None)
+    if seed is None or theme is None:
+        return jsonify(error="no active round"), 400
+    rnd = game_engine.make_frog_round(seed=seed, theme=theme)
+    score, total = game_engine.grade_frog(rnd, answers)
+    _save_game(child_id, "frog", score, total)
     return jsonify(score=score, total=total, stars=score)
 
 

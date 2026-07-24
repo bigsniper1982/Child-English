@@ -4,10 +4,13 @@ import random
 from app.games import (
     make_listen_round,
     make_sentence_round,
+    make_frog_round,
     grade_listen,
     grade_sentence,
+    grade_frog,
     NUM_LISTEN_QUESTIONS,
     NUM_SENTENCE_QUESTIONS,
+    NUM_FROG_QUESTIONS,
 )
 
 
@@ -81,3 +84,34 @@ def test_grade_sentence_marks_wrong_order():
     # only submit one, reversed
     score, total = grade_sentence(rnd, answers)
     assert score == 0
+
+
+def test_frog_round_has_five_word_finding_jumps():
+    rnd = make_frog_round(seed=8)
+    assert rnd["game"] == "frog"
+    assert len(rnd["questions"]) == NUM_FROG_QUESTIONS == 5
+    for q in rnd["questions"]:
+        assert q["prompt_zh"] and q["emoji"]
+        assert q["answer_id"] in [option["id"] for option in q["options"]]
+        assert len(q["options"]) == 4
+        assert len({option["id"] for option in q["options"]}) == 4
+
+
+def test_frog_round_is_theme_scoped_and_deterministic():
+    first = make_frog_round(seed=9, theme="animals_nature")
+    second = make_frog_round(seed=9, theme="animals_nature")
+    assert first == second
+    assert all(q["answer_id"].startswith("nature_") for q in first["questions"])
+    assert all(option["id"].startswith("nature_")
+               for q in first["questions"] for option in q["options"])
+
+
+def test_grade_frog_counts_only_submitted_correct_first_choices():
+    rnd = make_frog_round(seed=10)
+    answers = {q["id"]: q["answer_id"] for q in rnd["questions"]}
+    wrong = next(option["id"] for option in rnd["questions"][0]["options"]
+                 if option["id"] != rnd["questions"][0]["answer_id"])
+    answers[rnd["questions"][0]["id"]] = wrong
+    score, total = grade_frog(rnd, answers)
+    assert score == NUM_FROG_QUESTIONS - 1
+    assert total == NUM_FROG_QUESTIONS

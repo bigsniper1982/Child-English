@@ -5,7 +5,7 @@ from app import create_app
 from app import progress as prog
 from app.content import load_words, list_themes
 from app.db import get_db, default_child_id
-from app.games import make_listen_round, make_sentence_round
+from app.games import make_listen_round, make_sentence_round, make_frog_round
 
 
 def test_healthz_ok(client):
@@ -291,6 +291,67 @@ def test_sentence_game_submit_saves_score(auth_client, app):
         row = get_db().execute(
             "SELECT * FROM game_results WHERE game = 'sentence'").fetchone()
         assert row is not None
+
+
+def test_frog_game_page_and_submit_save_score(auth_client, app):
+    games_page = auth_client.get("/games").get_data(as_text=True)
+    assert "/games/frog" in games_page
+    page = auth_client.get("/games/frog")
+    assert page.status_code == 200
+    html = page.get_data(as_text=True)
+    assert "小青蛙过河" in html
+    assert 'id="frog-game"' in html
+    with auth_client.session_transaction() as sess:
+        seed = sess["frog_seed"]
+        theme = sess["frog_theme"]
+    rnd = make_frog_round(seed=seed, theme=theme)
+    answers = {q["id"]: q["answer_id"] for q in rnd["questions"]}
+    resp = auth_client.post(
+        "/games/frog/submit", headers=auth_client.api_headers,
+        json={"answers": answers},
+    )
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert data["score"] == data["total"] == 5
+    with app.app_context():
+        row = get_db().execute(
+            "SELECT * FROM game_results WHERE game = 'frog'"
+        ).fetchone()
+        assert row is not None and row["score"] == 5
+
+
+def test_frog_game_round_cannot_be_submitted_twice(auth_client):
+    auth_client.get("/games/frog")
+    with auth_client.session_transaction() as sess:
+        seed = sess["frog_seed"]
+        theme = sess["frog_theme"]
+    rnd = make_frog_round(seed=seed, theme=theme)
+    answers = {q["id"]: q["answer_id"] for q in rnd["questions"]}
+    first = auth_client.post(
+        "/games/frog/submit", headers=auth_client.api_headers,
+        json={"answers": answers},
+    )
+    assert first.status_code == 200
+    second = auth_client.post(
+        "/games/frog/submit", headers=auth_client.api_headers,
+        json={"answers": answers},
+    )
+    assert second.status_code == 400
+
+
+def test_theme_switch_invalidates_active_frog_round(auth_client):
+    auth_client.get("/games/frog")
+    with auth_client.session_transaction() as sess:
+        seed = sess["frog_seed"]
+    rnd = make_frog_round(seed=seed, theme="school_life")
+    answers = {q["id"]: q["answer_id"] for q in rnd["questions"]}
+    auth_client.post("/theme/select", headers=auth_client.api_headers,
+                     data={"theme": "food_and_drink"})
+    resp = auth_client.post(
+        "/games/frog/submit", headers=auth_client.api_headers,
+        json={"answers": answers},
+    )
+    assert resp.status_code == 400
 
 
 def test_listen_game_round_cannot_be_submitted_twice(auth_client, app):

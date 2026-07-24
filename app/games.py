@@ -12,7 +12,9 @@ from app.content import load_words
 
 NUM_LISTEN_QUESTIONS = 5
 NUM_SENTENCE_QUESTIONS = 5
+NUM_FROG_QUESTIONS = 5
 LISTEN_OPTIONS = 4
+FROG_OPTIONS = 4
 
 
 def _rng(seed):
@@ -57,6 +59,42 @@ def grade_listen(rnd, answers):
     for q in rnd["questions"]:
         if answers.get(q["id"]) == q["answer_id"]:
             score += 1
+    return score, total
+
+
+def make_frog_round(seed=None, theme="school_life"):
+    """Build a Find the Word round that moves a frog across the river."""
+    rng = _rng(seed)
+    words = load_words(theme)
+    targets = rng.sample(words, NUM_FROG_QUESTIONS)
+    questions = []
+    for index, target in enumerate(targets):
+        distractors = rng.sample(
+            [word for word in words if word["id"] != target["id"]],
+            FROG_OPTIONS - 1,
+        )
+        options = [target] + distractors
+        rng.shuffle(options)
+        questions.append({
+            "id": f"f{index}",
+            "prompt_zh": target["zh"],
+            "emoji": target["emoji"],
+            "answer_id": target["id"],
+            "options": [
+                {"id": option["id"], "en": option["en"]}
+                for option in options
+            ],
+        })
+    return {"game": "frog", "seed": seed, "questions": questions}
+
+
+def grade_frog(rnd, answers):
+    """Score the first submitted choice for each frog jump."""
+    total = len(rnd["questions"])
+    score = sum(
+        1 for question in rnd["questions"]
+        if answers.get(question["id"]) == question["answer_id"]
+    )
     return score, total
 
 

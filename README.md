@@ -1,6 +1,6 @@
 # 英语冒险岛（私人自用MVP）
 
-面向小学生的KET/A2导向词汇与口语练习网站。当前包含 **School Life、Food and Drink、Animals and Nature、Family and Home、Daily Routines** 五个主题，共150个原创词汇，以及听音选词、词块拼句、固定间隔复习、主题口语场景、小狐狸成长和家长进度页。
+面向小学生的KET/A2导向词汇与口语练习网站。当前包含 **School Life、Food and Drink、Animals and Nature、Family and Home、Daily Routines** 五个主题，共150个原创词汇，以及听音选词、词块拼句、小青蛙过河选词游戏、固定间隔复习、主题口语场景、小狐狸成长和家长进度页。
 
 ## 功能
 
